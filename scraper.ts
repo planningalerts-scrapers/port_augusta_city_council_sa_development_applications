@@ -244,7 +244,7 @@ function formatAddress(address: string) {
     // Remove the bracketted number that often appears at the end of a property address.  For
     // example, "7 McAdam RD PORT AUGUSTA (3743)" is changed to "7 McAdam RD PORT AUGUSTA".
 
-    address = address.replace(/ \([0-9]+\)$/, "");
+    address = address.replace(/ \([0-9]+\)$/, "").replace(/ \([0-9]*$/, "");
 
     // Pop tokens from the end of the array until a valid suburb name is encountered (allowing
     // for a few spelling errors).
@@ -500,12 +500,14 @@ async function main() {
     // at once because this may use too much memory, resulting in morph.io terminating the current
     // process).
 
-    let selectedPdfUrls: string[] = [];
-    selectedPdfUrls.push(pdfUrls.shift());
-    if (pdfUrls.length > 0)
-        selectedPdfUrls.push(pdfUrls[getRandom(1, pdfUrls.length)]);
-    if (getRandom(0, 2) === 0)
-        selectedPdfUrls.reverse();
+    let selectedPdfUrls = pdfUrls;
+
+    // let selectedPdfUrls: string[] = [];
+    // selectedPdfUrls.push(pdfUrls.shift());
+    // if (pdfUrls.length > 0)
+    //     selectedPdfUrls.push(pdfUrls[getRandom(1, pdfUrls.length)]);
+    // if (getRandom(0, 2) === 0)
+    //     selectedPdfUrls.reverse();
 
     for (let pdfUrl of selectedPdfUrls) {
         console.log(`Parsing document: ${pdfUrl}`);
