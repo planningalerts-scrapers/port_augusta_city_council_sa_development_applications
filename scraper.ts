@@ -234,6 +234,42 @@ function getLeftText(elements: Element[], topRightText: string, leftText: string
     return intersectingElements.map(element => element.text).join(" ").trim().replace(/\s\s+/g, " ");
 }
 
+// Formats (and corrects) an address.
+
+function formatAddress(address: string) {
+    address = address.trim();
+    if (address === "")
+        return "";
+
+    // Remove the bracketted number that often appears at the end of a property address.  For
+    // example, "7 McAdam RD PORT AUGUSTA (3743)" is changed to "7 McAdam RD PORT AUGUSTA".
+
+    address = address.replace(/ \([0-9]+\)$/, "");
+
+    // Pop tokens from the end of the array until a valid suburb name is encountered (allowing
+    // for a few spelling errors).
+
+    let tokens = address.split(" ");
+
+    let suburbName = null;
+    for (let index = 1; index <= 4; index++) {
+        let suburbNameMatch = didyoumean(tokens.slice(-index).join(" "), Object.keys(SuburbNames), { caseSensitive: false, returnType: "first-closest-match", thresholdType: "edit-distance", threshold: 2, trimSpace: true });
+        if (suburbNameMatch !== null) {
+            suburbName = SuburbNames[suburbNameMatch];
+            tokens.splice(-index, index);  // remove elements from the end of the array           
+            break;
+        }
+    }
+
+    if (suburbName === null)  // suburb name not found (or not recognised)
+        return address;
+
+    // Add the suburb name with its state and post code to the street name.
+
+    let streetName = tokens.join(" ").trim();
+    return (streetName + ((streetName === "") ? "" : ", ") + suburbName).trim();
+}
+
 // Parses the details from the elements associated with a single development application.
 
 function parseApplicationElements(elements: Element[], startElement: Element, informationUrl: string) {
@@ -257,6 +293,7 @@ function parseApplicationElements(elements: Element[], startElement: Element, in
     // Get the address.
 
     let address = getRightText(elements, "Property", "Approval Type", "Owner");
+    address = formatAddress(address);
 
     // Get the description.
 
