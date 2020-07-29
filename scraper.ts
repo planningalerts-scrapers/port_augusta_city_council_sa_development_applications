@@ -483,7 +483,6 @@ async function main() {
         await sleep(2000 + getRandom(0, 5) * 1000);
         let $ = cheerio.load(body);
         
-        let pdfUrls: string[] = [];
         for (let element of $("h3.generic-list__title a").get()) {
             let pdfUrl = new urlparser.URL(element.attribs.href, DevelopmentApplicationsUrl);
             if (pdfUrl.href.toLowerCase().includes(".pdf"))
